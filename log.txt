@@ -1,0 +1,5 @@
+2023-04-25 23:30:35,553 - INFO - Started building app...
+2023-04-25 23:30:36,101 - INFO - Building page: C:\xampp\htdocs\pages\custom-page\page.php as build/custom-page.php
+2023-04-25 23:30:36,109 - INFO - Building page: C:\xampp\htdocs\pages\error\page.php as build/error.php
+2023-04-25 23:30:36,110 - INFO - Building page: C:\xampp\htdocs\pages\help-center\page.php as build/help-center.php
+2023-04-25 23:30:36,118 - INFO - Building page: C:\xampp\htdocs\pages\page.php as build/index.php
