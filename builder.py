@@ -33,11 +33,6 @@ def putDefaultContent():
     dest_dir = r"build\src"
     putFolder(src_dir, dest_dir)
 
-    # Copy 'api' directory
-    api_dir = r"C:\xampp\htdocs\api"
-    api_dest_dir = r"build\api"
-    putFolder(api_dir, api_dest_dir)
-
 
 def createPages(pages):
     for page in pages:
