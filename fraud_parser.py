@@ -1,5 +1,5 @@
 from os import listdir, path
-from objects import Component, Props, Metadata
+from objects import Component, Prop, Metadata
 from utils import logger
 
 import re
@@ -84,21 +84,22 @@ def getComponentsInPage(file):
 
 
 def getPropsInPage(file):
-    result = []
-    with open(file, "r") as f:
-        code = f.read()
-    props_pattern = re.compile(r"\$props\s*=\s*\[\s*(.*?)\s*\];\s*", re.DOTALL)
-    for match in props_pattern.finditer(code):
-        props = match.group(1)
-        props_pattern2 = re.compile(r"(\".*?\"\s*=>\s*\".*?\")")
-        for match2 in props_pattern2.finditer(props):
-            result.append(match2.group(1))
-    # Foreach prop in result create a new prop object
+    php_code = getFullPageCode(file)
+    # Extract all associative arrays from PHP code using regular expressions
+    pattern = r"\$props\s*=\s*\[\s*([\s\S]*?)\s*\]\s*;"
+    matches = re.findall(pattern, php_code)
+
+    # Create a Prop object for each associative array
     props = []
-    for prop in result:
-        name = prop.split("=>")[0].replace('"', "").strip()
-        value = prop.split("=>")[1].replace('"', "").strip()
-        props.append(Props(name, value))
+    for match in matches:
+        array_str = match
+        keys = []
+        values = []
+        for line in array_str.split(",\n"):
+            key, value = line.strip().split(" => ")
+            keys.append(key.strip().strip("'"))
+            values.append(value.strip().strip("'"))
+        props.append(Prop(keys, values))
     return props
 
 
