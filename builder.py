@@ -10,7 +10,7 @@ from templates import HTML_SKELETON
 from bs4 import BeautifulSoup
 
 from sys import argv, exit
-from os import mkdir, path
+from os import listdir, remove
 from shutil import copytree, rmtree
 from server import start_server
 
@@ -83,22 +83,31 @@ def createPages(pages):
 
 def buildApp(files):
     logger.info("Started building app...")
-    if path.exists("build"):
-        consent = input(
-            "Build folder already exists. Do you want to overwrite it? (y/n): "
-        )
+
+    build_files = listdir("build")
+    if len(build_files) == 1 and build_files[0] == "_fraud":
+        # Only _fraud folder exists, no need to overwrite
+        pass
+    else:
+        consent = None
         while consent != "y" and consent != "n":
             consent = input(
-                "Build folder already exists. Do you want to overwrite it? (y/n): "
+                "Found previous build. Do you want to overwrite it? (y/n): "
             )
         if consent == "y":
-            rmtree("build")
-            mkdir("build")
+            # Remove everyting inside build except _fraud folder
+            for file in build_files:
+                if file != "_fraud":
+                    try:
+                        rmtree(f"build/{file}")
+                    except NotADirectoryError:
+                        # It is a file, remove it
+                        remove(f"build/{file}")
+
         else:
-            logger.error("Build folder already exists. Exiting...")
+            logger.error("Operation cancelled by user. Exiting...")
             exit(100)
-    else:
-        mkdir("build")
+
     putDefaultContent()
     createPages(files)
 
