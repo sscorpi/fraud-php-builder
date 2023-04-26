@@ -1,4 +1,4 @@
-from fraud_parser import getComponents, getAllPages, getComponentsInPage, getPageCode
+from fraud_parser import getComponents, getAllPages, getComponentsInPage, getPageCode, getPageMetadata
 from utils import getFolderName, logger
 from templates import HTACCESS, HTML_SKELETON
 from bs4 import BeautifulSoup
@@ -49,8 +49,19 @@ def createPages(pages):
                 _name = "{$" + component.name + "}"
                 component_code = getPageCode(component.path)
                 page_code = page_code.replace(_name, component_code)
-        # Add HTML skeleton and find main tag and insert page code inside it
+
         soup = BeautifulSoup(HTML_SKELETON, 'html.parser')
+        # Add page metadata if declared
+        try:
+            metadata = getPageMetadata(page)
+            soup.title.string = metadata.title
+            soup.find('meta', attrs={'name': 'keywords'})[
+                'content'] = metadata.keywords
+            soup.find('meta', attrs={'name': 'description'})[
+                'content'] = metadata.description
+        except:
+            pass
+
         main = soup.find('main')
         main.append(page_code)
         page_html = soup.prettify(formatter=None)
