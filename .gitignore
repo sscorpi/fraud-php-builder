@@ -1,7 +1,7 @@
 __pycache__
 build/*
 !build/_fraud/
-build/_fraud/*
-!build/_fraud/core.js
+build/_fraud/js/*
+!build/_fraud/js/core.js
 log.txt
 .vscode
