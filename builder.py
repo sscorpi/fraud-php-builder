@@ -15,6 +15,37 @@ from shutil import copytree, rmtree
 from server import start_server
 
 
+def cleanBuildDir():
+    consent = None
+    while consent != "y" and consent != "n":
+        consent = input(
+            "Do you want to clean build directory? This action is irreversible. (y/n): "
+        )
+    if consent == "y":
+        logger.info("Cleaning build directory...")
+        # Remove everyting inside build except _fraud folder
+        build_files = listdir("build")
+        for file in build_files:
+            if file != "_fraud":
+                try:
+                    rmtree(f"build/{file}")
+                except NotADirectoryError:
+                    # It is a file, remove it
+                    remove(f"build/{file}")
+        # Remove everyting inside _fraud except js/core.js
+        fraud_files = listdir("build/_fraud/js")
+        for file in fraud_files:
+            if file != "core.js":
+                try:
+                    rmtree(f"build/_fraud/js/{file}")
+                except NotADirectoryError:
+                    # It is a file, remove it
+                    remove(f"build/_fraud/js/{file}")
+    else:
+        logger.error("Operation cancelled by user. Exiting...")
+        exit(100)
+
+
 def putDefaultContent():
     def putFolder(src, dest):
         try:
@@ -123,3 +154,5 @@ else:
         buildApp(files)
     elif argv[1] == "dev":
         start_server()
+    elif argv[1] == "clean":
+        cleanBuildDir()
