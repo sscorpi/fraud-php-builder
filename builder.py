@@ -18,8 +18,8 @@ def putDefaultContent():
             copytree(src, dest)
 
     # Copy '_fraud' directory
-    fraud_dir = r'C:\xampp\htdocs\_fraud'
-    fraud_dest_dir = r'build\_fraud'
+    fraud_dir = r'C:\xampp\htdocs\_fraud\js\exports'
+    fraud_dest_dir = r'build\_fraud\js\exports'
     putFolder(fraud_dir, fraud_dest_dir)
 
     # Copy 'src' directory
