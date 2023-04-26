@@ -1,20 +1,20 @@
 from fraud_parser import getComponents, getAllPages, getComponentsInPage, getPageCode
 from utils import getFolderName, logger
-from templates import HTACCESS
+from templates import HTACCESS, HTML_SKELETON
 from bs4 import BeautifulSoup
 
-import sys
+from sys import argv, exit
 from os import mkdir, path
-import shutil
+from shutil import copytree, rmtree
 
 
 def putDefaultContent():
     def putFolder(src, dest):
         try:
-            shutil.copytree(src, dest)
+            copytree(src, dest)
         except FileExistsError:
-            shutil.rmtree(dest)
-            shutil.copytree(src, dest)
+            rmtree(dest)
+            copytree(src, dest)
 
     # Copy '_fraud' directory
     fraud_dir = r'C:\xampp\htdocs\_fraud'
@@ -41,7 +41,6 @@ def createPages(pages):
         pageName = getFolderName(page)
         logger.info(
             f"Building page: {page} as build/{pageName}.php")
-        page_html = ""
         components = getComponents(page)
         components_in_page = getComponentsInPage(page)
         page_code = getPageCode(page)
@@ -50,10 +49,11 @@ def createPages(pages):
                 _name = "{$" + component.name + "}"
                 component_code = getPageCode(component.path)
                 page_code = page_code.replace(_name, component_code)
-
-        # Beatufy the code using BeautifulSoup
-        soup = BeautifulSoup(page_code, 'html.parser')
-        page_html = soup.prettify()
+        # Add HTML skeleton and find main tag and insert page code inside it
+        soup = BeautifulSoup(HTML_SKELETON, 'html.parser')
+        main = soup.find('main')
+        main.append(page_code)
+        page_html = soup.prettify(formatter=None)
         with open(f'build/{pageName}.php', 'w') as f:
             f.write(page_html)
 
@@ -67,7 +67,7 @@ def buildApp(files):
             consent = input(
                 "Build folder already exists. Do you want to overwrite it? (y/n): ")
         if consent == 'y':
-            shutil.rmtree('build')
+            rmtree('build')
             mkdir('build')
         else:
             logger.error("Build folder already exists. Exiting...")
@@ -82,8 +82,8 @@ directories, files = getAllPages('C:\\xampp\\htdocs\\pages\\')
 
 index = 'C:\\xampp\\htdocs\\pages\\page.php'
 
-if len(sys.argv) != 2:
+if len(argv) != 2:
     print("Usage: python compiler.py build")
 else:
-    if (sys.argv[1] == 'build'):
+    if (argv[1] == 'build'):
         buildApp(files)
