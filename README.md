@@ -1,3 +1,3 @@
-# Fraud PHP Compiler
+# Fraud PHP Builder
 
-Compiler for Fraud PHP template.
+Builder for Fraud PHP template.
