@@ -7,7 +7,7 @@ PORT = 8000
 
 
 class RequestHandler(SimpleHTTPRequestHandler):
-    def log_request(self, code='-', size='-'):
+    def log_request(self, code="-", size="-"):
         """Override log_request to print the requested URL."""
         url = f"http://localhost:{PORT}{self.path}"
         print(f"Request: {url}")
@@ -20,11 +20,11 @@ class RequestHandler(SimpleHTTPRequestHandler):
         # check if the path is a directory
         if isdir(path):
             # append the default index file name
-            path = join(path, 'index.html')
+            path = join(path, "index.html")
 
         # append .html to the path if it has no file extension
         if not splitext(path)[1]:
-            path += '.html'
+            path += ".html"
 
         return path
 
