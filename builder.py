@@ -4,6 +4,7 @@ from fraud_parser import (
     getComponentsInPage,
     getPageCode,
     getPageMetadata,
+    getPropsInPage,
 )
 from utils import getFolderName, logger
 from templates import HTML_SKELETON, HTACCESS
@@ -13,6 +14,28 @@ from sys import argv, exit
 from os import listdir, remove
 from shutil import copytree, rmtree
 from server import start_server
+
+
+def getPropsInPageEdited(props):
+    keys = []
+    values = []
+    for prop in props:
+        for key in prop.keys:
+            # If index is not 0 print
+            if prop.keys.index(key) != 0:
+                _key = "{$props[" + key + "]}"
+                keys.append(_key)
+                values.append(prop.values[prop.keys.index(key)].strip('"'))
+    return keys, values
+
+
+def getComponentsInPageEdited(components):
+    result = []
+    for component in components:
+        if component.props != None:
+            for prop in component.props:
+                result.append(prop)
+    return result
 
 
 def cleanBuildDir():
@@ -72,15 +95,32 @@ def putDefaultContent():
 def createPages(pages):
     for page in pages:
         pageName = getFolderName(page)
-        logger.info(f"Building page: {page} as build/{pageName}.php")
+        logger.info(f"Building page: {page} as build\{pageName}.php")
         components = getComponents(page)
         components_in_page = getComponentsInPage(page)
+        props_in_page = getPropsInPage(page)
         page_code = getPageCode(page)
         for component in components:
             if component.name in components_in_page:
                 _name = "{$" + component.name + "}"
                 component_code = getPageCode(component.path)
                 page_code = page_code.replace(_name, component_code)
+        replace = getComponentsInPageEdited(components)
+        keys, values = getPropsInPageEdited(props_in_page)
+
+        # Find replace in page_code and replace with values if replace and keys are same
+        for i in range(len(replace)):
+            found = False
+            for j in range(len(keys)):
+                if replace[i] == keys[j]:
+                    page_code = page_code.replace(replace[i], values[j])
+                    found = True
+                    break
+            if not found:
+                logger.error(
+                    f"in {page}: {replace[i]} not found. Did you mean {keys[j]}?"
+                )
+                exit(105)
 
         soup = BeautifulSoup(HTML_SKELETON, "html.parser")
         # Add page metadata if declared
@@ -151,8 +191,9 @@ directories, files = getAllPages("C:\\xampp\\htdocs\\pages\\")
 
 index = "C:\\xampp\\htdocs\\pages\\page.php"
 
+
 if len(argv) != 2:
-    print("Usage: python compiler.py build")
+    print("Usage: python compiler.py build, dev, clean, debug")
 else:
     if argv[1] == "build":
         buildApp(files)
@@ -160,3 +201,5 @@ else:
         start_server()
     elif argv[1] == "clean":
         cleanBuildDir()
+    elif argv[1] == "debug":
+        pass
