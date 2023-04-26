@@ -40,12 +40,18 @@ def getFullPageCode(file):
 
 def getPageMetadata(file):
     code = getFullPageCode(file)
-    # Find all occurrences of $PAGE_TITLE, $PAGE_KEYWORDS, $PAGE_DESCRIPTION and their values
+    metadata = {}
+    # Find all occurrences of $PAGE_TITLE, $PAGE_KEYWORDS, and $PAGE_DESCRIPTION and their values
     pattern = r'\$(PAGE_TITLE|PAGE_KEYWORDS|PAGE_DESCRIPTION)\s*=\s*"(.*?)"'
-    metadata = re.findall(pattern, code, re.IGNORECASE)
-    # Create metadata object
-    metadata = Metadata(metadata[0][1], metadata[1][1], metadata[2][1])
-    return metadata
+    matches = re.findall(pattern, code, re.IGNORECASE)
+    for match in matches:
+        if match[0].lower() == 'page_title':
+            metadata['title'] = match[1]
+        elif match[0].lower() == 'page_keywords':
+            metadata['keywords'] = match[1]
+        elif match[0].lower() == 'page_description':
+            metadata['description'] = match[1]
+    return Metadata(metadata.get('title'), metadata.get('keywords'), metadata.get('description'))
 
 
 def getComponentsInPage(file):
