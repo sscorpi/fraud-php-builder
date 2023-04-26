@@ -55,7 +55,7 @@ class Metadata:
         self.description = description
 
 
-class Props:
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
+class Prop:
+    def __init__(self, keys, values):
+        self.keys = keys
+        self.values = values
