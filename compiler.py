@@ -54,18 +54,30 @@ def createPages(pages):
         # Add page metadata if declared
         try:
             metadata = getPageMetadata(page)
-            soup.title.string = metadata.title
-            soup.find('meta', attrs={'name': 'keywords'})[
-                'content'] = metadata.keywords
-            soup.find('meta', attrs={'name': 'description'})[
-                'content'] = metadata.description
+            if metadata.title:
+                soup.title.string = metadata.title
+            if metadata.keywords:
+                meta_keywords = soup.find('meta', attrs={'name': 'keywords'})
+                if meta_keywords:
+                    meta_keywords['content'] = metadata.keywords
+                else:
+                    soup.head.append(soup.new_tag(
+                        'meta', name='keywords', content=metadata.keywords))
+            if metadata.description:
+                meta_description = soup.find(
+                    'meta', attrs={'name': 'description'})
+                if meta_description:
+                    meta_description['content'] = metadata.description
+                else:
+                    soup.head.append(soup.new_tag(
+                        'meta', name='description', content=metadata.description))
         except:
             pass
 
         main = soup.find('main')
         main.append(page_code)
         page_html = soup.prettify(formatter=None)
-        with open(f'build/{pageName}.php', 'w') as f:
+        with open(f'build/{pageName}.html', 'w') as f:
             f.write(page_html)
 
 
