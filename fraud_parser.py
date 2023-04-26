@@ -69,14 +69,14 @@ def getComponentsInPage(file):
     # Check if component starts with capital letter if not throw error
     for component in potential_components:
         if not component[0].isupper():
-            logger.error(
+            logger.critical(
                 f"Error 101: Component {component} in {file} is not a valid Fraud Component. It must start with a capital letter."
             )
             exit(101)
     # Check if component is imported if not throw error
     for component in potential_components:
         if component not in [c.name for c in importedComponents]:
-            logger.error(
+            logger.critical(
                 f"Error 103: Component {component} in {file} is not imported. Please import it first."
             )
             exit(103)
