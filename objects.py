@@ -47,6 +47,13 @@ class Page():
         self.content = content
 
 
+class Metadata():
+    def __init__(self, title, keywords, description):
+        self.title = title
+        self.keywords = keywords
+        self.description = description
+
+
 class Props():
     def __init__(self, name, value):
         self.name = name
