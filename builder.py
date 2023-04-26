@@ -6,7 +6,7 @@ from fraud_parser import (
     getPageMetadata,
     getPropsInPage,
 )
-from utils import getFolderName, logger
+from utils import getFolderName, logger, getFileName
 from templates import HTML_SKELETON, HTACCESS
 from bs4 import BeautifulSoup
 
@@ -20,12 +20,14 @@ def getPropsInPageEdited(props):
     keys = []
     values = []
     for prop in props:
+        prop_keys = []
+        prop_values = []
         for key in prop.keys:
-            # If index is not 0 print
-            if prop.keys.index(key) != 0:
-                _key = "{$props[" + key + "]}"
-                keys.append(_key)
-                values.append(prop.values[prop.keys.index(key)].strip('"'))
+            _key = "{$props[" + key + "]}"
+            prop_keys.append(_key)
+            prop_values.append(prop.values[prop.keys.index(key)].strip('"'))
+        keys.append(prop_keys)
+        values.append(prop_values)
     return keys, values
 
 
@@ -33,8 +35,11 @@ def getComponentsInPageEdited(components):
     result = []
     for component in components:
         if component.props != None:
+            a = []
+            # Append props into a array that has same component.name, so create multidimensional array
             for prop in component.props:
-                result.append(prop)
+                a.append(prop)
+            result.append([component.name, a])
     return result
 
 
@@ -45,7 +50,7 @@ def cleanBuildDir():
             "Do you want to clean build directory? This action is irreversible. (y/n): "
         )
     if consent == "y":
-        logger.info("Cleaning build directory...")
+        logger.warning("Cleaning build directory...")
         # Remove everyting inside build except _fraud folder
         build_files = listdir("build")
         for file in build_files:
@@ -105,22 +110,19 @@ def createPages(pages):
                 _name = "{$" + component.name + "}"
                 component_code = getPageCode(component.path)
                 page_code = page_code.replace(_name, component_code)
+
+        # Replace props in page
         replace = getComponentsInPageEdited(components)
         keys, values = getPropsInPageEdited(props_in_page)
-
-        # Find replace in page_code and replace with values if replace and keys are same
         for i in range(len(replace)):
-            found = False
-            for j in range(len(keys)):
-                if replace[i] == keys[j]:
-                    page_code = page_code.replace(replace[i], values[j])
-                    found = True
-                    break
-            if not found:
-                logger.error(
-                    f"in {page}: {replace[i]} not found. Did you mean {keys[j]}?"
-                )
-                exit(105)
+            for j in range(len(replace[i][1])):
+                try:
+                    page_code = page_code.replace(keys[i][j + 1], values[i][j + 1])
+                except:
+                    logger.critical(
+                        f'Trying to access a prop that does not exist in component "{replace[i][0]}" in page "{page}"'
+                    )
+                    exit(107)
 
         soup = BeautifulSoup(HTML_SKELETON, "html.parser")
         # Add page metadata if declared
@@ -157,8 +159,6 @@ def createPages(pages):
 
 
 def buildApp(files):
-    logger.info("Started building app...")
-
     build_files = listdir("build")
     if len(build_files) == 1 and build_files[0] == "_fraud":
         # Only _fraud folder exists, no need to overwrite
@@ -182,9 +182,10 @@ def buildApp(files):
         elif consent == "n":
             logger.error("Operation cancelled by user. Exiting...")
             exit(100)
-
+    logger.info("Build started")
     putDefaultContent()
     createPages(files)
+    logger.info("Build finished with no errors!")
 
 
 directories, files = getAllPages("C:\\xampp\\htdocs\\pages\\")
@@ -202,4 +203,5 @@ else:
     elif argv[1] == "clean":
         cleanBuildDir()
     elif argv[1] == "debug":
-        pass
+        logger.error("No debug code found. Exiting...")
+        exit(100)
