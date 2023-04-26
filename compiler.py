@@ -1,11 +1,12 @@
 from fraud_parser import getComponents, getAllPages, getComponentsInPage, getPageCode, getPageMetadata
 from utils import getFolderName, logger
-from templates import HTACCESS, HTML_SKELETON
+from templates import HTML_SKELETON
 from bs4 import BeautifulSoup
 
 from sys import argv, exit
 from os import mkdir, path
 from shutil import copytree, rmtree
+from server import start_server
 
 
 def putDefaultContent():
@@ -30,10 +31,6 @@ def putDefaultContent():
     api_dir = r'C:\xampp\htdocs\api'
     api_dest_dir = r'build\api'
     putFolder(api_dir, api_dest_dir)
-
-    # Create .htaccess file in build directory
-    with open('build/.htaccess', 'w') as f:
-        f.write(HTACCESS)
 
 
 def createPages(pages):
@@ -110,3 +107,5 @@ if len(argv) != 2:
 else:
     if (argv[1] == 'build'):
         buildApp(files)
+    elif argv[1] == 'dev':
+        start_server()
