@@ -1,5 +1,5 @@
 from os import listdir, path
-from objects import Component, Props
+from objects import Component, Props, Metadata
 from utils import logger
 
 import re
@@ -36,6 +36,16 @@ def getFullPageCode(file):
     with open(file, 'r') as f:
         rawCode = f.read()
         return rawCode
+
+
+def getPageMetadata(file):
+    code = getFullPageCode(file)
+    # Find all occurrences of $PAGE_TITLE, $PAGE_KEYWORDS, $PAGE_DESCRIPTION and their values
+    pattern = r'\$(PAGE_TITLE|PAGE_KEYWORDS|PAGE_DESCRIPTION)\s*=\s*"(.*?)"'
+    metadata = re.findall(pattern, code, re.IGNORECASE)
+    # Create metadata object
+    metadata = Metadata(metadata[0][1], metadata[1][1], metadata[2][1])
+    return metadata
 
 
 def getComponentsInPage(file):
