@@ -6,7 +6,7 @@ from fraud_parser import (
     getPageMetadata,
 )
 from utils import getFolderName, logger
-from templates import HTML_SKELETON
+from templates import HTML_SKELETON, HTACCESS
 from bs4 import BeautifulSoup
 
 from sys import argv, exit
@@ -41,7 +41,7 @@ def cleanBuildDir():
                 except NotADirectoryError:
                     # It is a file, remove it
                     remove(f"build/_fraud/js/{file}")
-    else:
+    elif consent == "n":
         logger.error("Operation cancelled by user. Exiting...")
         exit(100)
 
@@ -63,6 +63,10 @@ def putDefaultContent():
     src_dir = r"C:\xampp\htdocs\src"
     dest_dir = r"build\src"
     putFolder(src_dir, dest_dir)
+
+    # Create .htaccess file
+    with open("build/.htaccess", "w") as f:
+        f.write(HTACCESS)
 
 
 def createPages(pages):
@@ -135,7 +139,7 @@ def buildApp(files):
                         # It is a file, remove it
                         remove(f"build/{file}")
 
-        else:
+        elif consent == "n":
             logger.error("Operation cancelled by user. Exiting...")
             exit(100)
 
