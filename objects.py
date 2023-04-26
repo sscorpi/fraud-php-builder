@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import re
+from re import findall
 
 from utils import logger
 
@@ -30,7 +30,7 @@ class Component():
             component_code = f.read()
         # Find all occurrences of {$props['any']}
         pattern = r'{\$props\[.*?\]}'
-        props = re.findall(pattern, component_code)
+        props = findall(pattern, component_code)
         # Remove unnecessary spaces from props
         props = [prop.strip() for prop in props]
         # If props is empty return None
