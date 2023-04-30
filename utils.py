@@ -1,10 +1,19 @@
 from logging import getLogger, StreamHandler, FileHandler, DEBUG, INFO, Formatter
 from colorlog import ColoredFormatter
+from json import load
+
+with open("config.json", "r") as f:
+    config = load(f)
+
+SOURCE_PATH = config["build"]["source_path"]
+PROPS_OWNER_KEY = config["alias"]["props_owner_key"]
+
+index = f"{SOURCE_PATH}\pages\page.php"
 
 
 def getFolderName(raw):
     name = raw.split("\\")[-2]
-    if name == "pages":
+    if raw == index:
         name = "index"
     return name
 
