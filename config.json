@@ -1,0 +1,8 @@
+{
+    "build": {
+      "source_path": "C:\\xampp\\htdocs"
+    },
+    "alias": {
+      "props_owner_key": "FraudFor"
+    }
+  }
