@@ -1,6 +1,6 @@
 from os import listdir, path
 from objects import Component, Prop, Metadata
-from utils import logger
+from utils import logger, SOURCE_PATH
 
 import re
 
@@ -17,7 +17,7 @@ def getComponents(file):
                 name = component.split("/")[-1].split(".")[0]
                 # Get the path of the component replace {$_SERVER['DOCUMENT_ROOT']} with the path to the root directory
                 component_path = component.replace(
-                    "{$_SERVER['DOCUMENT_ROOT']}", "C:/xampp/htdocs"
+                    "{$_SERVER['DOCUMENT_ROOT']}", SOURCE_PATH
                 )
                 # Create new component object
                 component = Component(name, component_path, file)

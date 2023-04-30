@@ -6,7 +6,7 @@ from fraud_parser import (
     getPageMetadata,
     getPropsInPage,
 )
-from utils import getFolderName, logger, getFileName
+from utils import getFolderName, logger, SOURCE_PATH, PROPS_OWNER_KEY
 from templates import HTML_SKELETON, HTACCESS
 from bs4 import BeautifulSoup
 
@@ -22,6 +22,11 @@ def getPropsInPageEdited(props):
     for prop in props:
         prop_keys = []
         prop_values = []
+        if prop.keys[0] != f'"{PROPS_OWNER_KEY}"':
+            logger.error(
+                f"Prop {prop} is not a valid Fraud Prop. It must have a key named '{PROPS_OWNER_KEY}' and it must be the first key."
+            )
+            exit()
         for key in prop.keys:
             _key = "{$props[" + key + "]}"
             prop_keys.append(_key)
@@ -56,19 +61,19 @@ def cleanBuildDir():
         for file in build_files:
             if file != "_fraud":
                 try:
-                    rmtree(f"build/{file}")
+                    rmtree(f"build\\{file}")
                 except NotADirectoryError:
                     # It is a file, remove it
-                    remove(f"build/{file}")
+                    remove(f"build\\{file}")
         # Remove everyting inside _fraud except js/core.js
-        fraud_files = listdir("build/_fraud/js")
+        fraud_files = listdir("build\\_fraud\\js")
         for file in fraud_files:
             if file != "core.js":
                 try:
-                    rmtree(f"build/_fraud/js/{file}")
+                    rmtree(f"build\\_fraud\\js\\{file}")
                 except NotADirectoryError:
                     # It is a file, remove it
-                    remove(f"build/_fraud/js/{file}")
+                    remove(f"build\\_fraud\\js\\{file}")
     elif consent == "n":
         logger.error("Operation cancelled by user. Exiting...")
         exit(100)
@@ -83,13 +88,13 @@ def putDefaultContent():
             copytree(src, dest)
 
     # Copy '_fraud' directory
-    fraud_dir = r"C:\xampp\htdocs\_fraud\js\exports"
-    fraud_dest_dir = r"build\_fraud\js\exports"
+    fraud_dir = f"{SOURCE_PATH}\\_fraud\\js\\exports"
+    fraud_dest_dir = "build\\_fraud\\js\\exports"
     putFolder(fraud_dir, fraud_dest_dir)
 
     # Copy 'src' directory
-    src_dir = r"C:\xampp\htdocs\src"
-    dest_dir = r"build\src"
+    src_dir = f"{SOURCE_PATH}/src"
+    dest_dir = "build/src"
     putFolder(src_dir, dest_dir)
 
     # Create .htaccess file
@@ -100,7 +105,7 @@ def putDefaultContent():
 def createPages(pages):
     for page in pages:
         pageName = getFolderName(page)
-        logger.info(f"Building page: {page} as build\{pageName}.php")
+        logger.info(f"Building page: {page} as build\\{pageName}.php")
         components = getComponents(page)
         components_in_page = getComponentsInPage(page)
         props_in_page = getPropsInPage(page)
@@ -116,11 +121,22 @@ def createPages(pages):
         keys, values = getPropsInPageEdited(props_in_page)
         for i in range(len(replace)):
             for j in range(len(replace[i][1])):
-                try:
-                    page_code = page_code.replace(keys[i][j + 1], values[i][j + 1])
-                except:
+                if len(replace[i][1]) != len(keys[i]) - 1:
                     logger.critical(
-                        f'Trying to access a prop that does not exist in component "{replace[i][0]}" in page "{page}"'
+                        f'Component "{replace[i][0]}" trying to access {len(replace[i][1])} props, but it takes {len(keys[i]) - 1} props in {component.path}'
+                    )
+                    exit(107)
+                if replace[i][1][j] == keys[i][j + 1]:
+                    try:
+                        page_code = page_code.replace(keys[i][j + 1], values[i][j + 1])
+                    except:
+                        logger.critical(
+                            f'Trying to access a prop that does not exist in component "{replace[i][0]}" in page "{page}"'
+                        )
+                        exit(107)
+                else:
+                    logger.critical(
+                        f'"{replace[i][1][j]}" does not exist in {component.path}. Did you mean "{keys[i][j + 1]}"?'
                     )
                     exit(107)
 
@@ -188,9 +204,7 @@ def buildApp(files):
     logger.info("Build finished with no errors!")
 
 
-directories, files = getAllPages("C:\\xampp\\htdocs\\pages\\")
-
-index = "C:\\xampp\\htdocs\\pages\\page.php"
+directories, files = getAllPages(f"{SOURCE_PATH}\\pages")
 
 
 if len(argv) != 2:
@@ -203,5 +217,6 @@ else:
     elif argv[1] == "clean":
         cleanBuildDir()
     elif argv[1] == "debug":
-        logger.error("No debug code found. Exiting...")
-        exit(100)
+        for page in files:
+            print(getFolderName(page))
+            print(page)
