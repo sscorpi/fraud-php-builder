@@ -10,7 +10,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
     def log_request(self, code="-", size="-"):
         """Override log_request to print the requested URL."""
         url = f"http://localhost:{PORT}{self.path}"
-        print(f"Request: {url}")
 
     def translate_path(self, path):
         """Override translate_path to append .html to requested paths."""
