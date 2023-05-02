@@ -38,16 +38,6 @@ class Component:
         return None if len(props) == 0 else props
 
 
-class Page:
-    def __init__(self, title, keywords, description, path, props, content):
-        self.title = title
-        self.keywords = keywords
-        self.description = description
-        self.path = path
-        self.props = props
-        self.content = content
-
-
 class Metadata:
     def __init__(self, title, keywords, description):
         self.title = title
