@@ -16,15 +16,16 @@ from shutil import copytree, rmtree
 from server import start_server
 
 
-def getPropsInPageEdited(props):
+def getPropsInPageEdited(props, page):
     keys = []
     values = []
-    for prop in props:
+    for i in range(len(props)):
         prop_keys = []
         prop_values = []
+        prop = props[i]
         if prop.keys[0] != f'"{PROPS_OWNER_KEY}"':
             logger.error(
-                f"Prop {prop} is not a valid Fraud Prop. It must have a key named '{PROPS_OWNER_KEY}' and it must be the first key."
+                f"in page {page}, Prop {props[i].keys[i]} is not a valid Fraud Prop. It must have a key named '{PROPS_OWNER_KEY}' and it must be the first key."
             )
             exit()
         for key in prop.keys:
@@ -33,6 +34,7 @@ def getPropsInPageEdited(props):
             prop_values.append(prop.values[prop.keys.index(key)].strip('"'))
         keys.append(prop_keys)
         values.append(prop_values)
+
     return keys, values
 
 
@@ -118,7 +120,7 @@ def createPages(pages):
 
         # Replace props in page
         replace = getComponentsInPageEdited(components)
-        keys, values = getPropsInPageEdited(props_in_page)
+        keys, values = getPropsInPageEdited(props_in_page, page)
         for i in range(len(replace)):
             for j in range(len(replace[i][1])):
                 if len(replace[i][1]) != len(keys[i]) - 1:
